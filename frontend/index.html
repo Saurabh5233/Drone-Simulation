@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta
+    name="description"
+    content="Real-time drone delivery simulation platform with interactive mapping and live tracking"
+  />
+  
+  <link rel="manifest" href="/manifest.json" />
+  
+  <!-- Leaflet CSS -->
+  <link 
+    rel="stylesheet" 
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  
+  <!-- Load Leaflet JS -->
+  <script 
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  
+  <title>Drone Simulator - Real-time Delivery Tracking</title>
+  
+  <!-- Additional meta tags for better SEO -->
+  <meta property="og:title" content="Drone Simulator - Real-time Delivery Tracking" />
+  <meta property="og:description" content="Advanced drone delivery simulation platform with real-time tracking, interactive maps, and comprehensive monitoring." />
+  <meta property="og:type" content="website" />
+  <meta name="robots" content="index, follow" />
+  
+  <!-- PWA meta tags -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Drone Simulator">
+</head>
+<body>
+  <noscript>
+    <div style="
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      min-height: 100vh; 
+      background-color: #f3f4f6; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    ">
+      <div style="
+        text-align: center; 
+        padding: 2rem; 
+        background: white; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        max-width: 400px;
+      ">
+        <h1 style="color: #1f2937; margin-bottom: 1rem;">JavaScript Required</h1>
+        <p style="color: #6b7280; margin-bottom: 1rem;">
+          The Drone Simulator requires JavaScript to function properly.
+        </p>
+        <p style="color: #6b7280; font-size: 0.875rem;">
+          Please enable JavaScript in your browser settings and refresh the page.
+        </p>
+      </div>
+    </div>
+  </noscript>
+  
+  <!-- Loading indicator -->
+  <div id="loading-screen" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  ">
+    <div style="text-align: center;">
+      <div style="
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e5e7eb;
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      "></div>
+      <h2 style="color: #1f2937; margin: 0 0 0.5rem; font-size: 1.25rem;">Loading Drone Simulator</h2>
+      <p style="color: #6b7280; margin: 0; font-size: 0.875rem;">Initializing systems...</p>
+    </div>
+  </div>
+  
+  <div id="root"></div>
+  
+  <!-- Leaflet JavaScript - loaded here for better performance -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+    async
+  ></script>
+  
+  <script>
+    // Remove loading screen when React app loads
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          loadingScreen.style.opacity = '0';
+          loadingScreen.style.transition = 'opacity 0.5s ease';
+          setTimeout(function() {
+            loadingScreen.remove();
+          }, 500);
+        }
+      }, 1000);
+    });
+    
+    // Error handling for failed script loads
+    window.addEventListener('error', function(e) {
+      if (e.target.tagName === 'SCRIPT') {
+        console.error('Failed to load script:', e.target.src);
+      }
+    });
+  </script>
+  
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Ensure body has no margin/padding */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f3f4f6;
+    }
+    
+    #root {
+      min-height: 100vh;
+    }
+  </style>
+</body>
+</html>
