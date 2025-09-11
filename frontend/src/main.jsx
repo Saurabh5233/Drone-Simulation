@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import './styles/globals.scss';
+import './styles/globals.css';
 import 'leaflet/dist/leaflet.css';
 import App from './App';
 

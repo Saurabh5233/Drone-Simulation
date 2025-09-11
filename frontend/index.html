@@ -101,6 +101,9 @@
   
   <div id="root"></div>
   
+  <!-- Vite main entry point -->
+  <script type="module" src="/src/main.jsx"></script>
+  
   <!-- Leaflet JavaScript - loaded here for better performance -->
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"
@@ -114,12 +117,22 @@
     window.addEventListener('load', function() {
       setTimeout(function() {
         const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen) {
-          loadingScreen.style.opacity = '0';
-          loadingScreen.style.transition = 'opacity 0.5s ease';
-          setTimeout(function() {
-            loadingScreen.remove();
-          }, 500);
+        const root = document.getElementById('root');
+        
+        // Check if React has rendered anything
+        if (root && root.children.length > 0) {
+          console.log('React content found, hiding loading screen');
+          if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.5s ease';
+            setTimeout(function() {
+              loadingScreen.remove();
+            }, 500);
+          }
+        } else {
+          console.log('No React content found, keeping loading screen visible');
+          // Try again after 2 more seconds
+          setTimeout(arguments.callee, 2000);
         }
       }, 1000);
     });
