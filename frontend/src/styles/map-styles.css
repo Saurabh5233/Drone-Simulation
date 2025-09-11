@@ -13,6 +13,18 @@
   border-radius: 0.5rem;
   overflow: hidden;
   z-index: 1;
+  transition: filter 0.3s ease;
+}
+
+/* Dark mode support for map tiles */
+.dark .leaflet-container {
+  filter: hue-rotate(180deg) invert(1) brightness(0.8) contrast(1.2);
+}
+
+/* Keep custom markers and controls normal in dark mode */
+.dark .leaflet-marker-pane,
+.dark .leaflet-control-container {
+  filter: hue-rotate(180deg) invert(1);
 }
 
 /* Custom marker styles */
@@ -30,6 +42,13 @@
   text-align: center;
   line-height: 1;
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Ensure markers are visible in both light and dark modes */
+.drone-marker,
+.pickup-marker,
+.delivery-marker {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 /* Animation for the drone marker when moving */

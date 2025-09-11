@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import MapComponent from './MapComponent';
 import ControlPanel from './ControlPanel';
 import StatusPanel from './StatusPanel';
+import ThemeToggle from './ThemeToggle';
 import { simulationAPI, droneAPI, healthAPI, handleAPIError } from '../services/api';
 import { getCoordinatesFromAddress } from '../utils/coordinates';
 import webSocketService from '../services/websocket';
@@ -386,21 +387,24 @@ const DroneSimulator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <header className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <header className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6 transition-colors duration-300">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="mb-4 md:mb-0">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Drone Simulator</h1>
-              <p className="text-gray-600 mt-1">Real-time drone delivery simulation platform</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Drone Simulator</h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-1">Real-time drone delivery simulation platform</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+              
               {/* Connection Status */}
               <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium ${
                 connectionStatus === 'connected' 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
+                  ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
+                  : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
               }`}>
                 <div className={`w-2.5 h-2.5 rounded-full ${
                   connectionStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'
@@ -410,14 +414,14 @@ const DroneSimulator = () => {
               
               {/* WebSocket Status */}
               {webSocketService.getConnectionStatus().isConnected && (
-                <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                   <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></div>
                   <span>Live Updates</span>
                 </div>
               )}
               
               {lastDataReceived && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   Updated: {new Date(lastDataReceived).toLocaleTimeString()}
                 </div>
               )}
@@ -428,7 +432,7 @@ const DroneSimulator = () => {
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Map View - Takes 2/3 width on large screens */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors duration-300">
             <MapComponent 
               currentPosition={currentPosition} 
               pickupCoords={pickupCoords}

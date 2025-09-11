@@ -74,50 +74,50 @@ const ControlPanel = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 h-full flex flex-col transition-colors duration-300">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">Control Panel</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Control Panel</h2>
         <div className={`text-xs px-2 py-1 rounded-full border ${getStatusColor()}`}>
           {simulationStatus || 'idle'}
         </div>
       </div>
       <div className="space-y-4 flex-grow">
         {/* Connection Status */}
-        <div className="p-3 rounded-lg border border-gray-200 bg-gray-50">
+        <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 transition-colors duration-300">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center">
               <div className={`w-2.5 h-2.5 rounded-full mr-2 ${
                 connectionStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'
               }`}></div>
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                 {connectionStatus === 'connected' ? 'Connected to Server' : 'Disconnected'}
               </span>
             </div>
-            <span className="text-xs text-gray-500">{timeSinceUpdate}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{timeSinceUpdate}</span>
           </div>
         </div>
 
         {receivedData ? (
           <>
             {/* Drone Information */}
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold text-gray-800 mb-2">Assigned Drone</h3>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg transition-colors duration-300">
+              <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Assigned Drone</h3>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Name:</span>
-                  <span className="text-gray-800">{receivedData.drone.name}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Name:</span>
+                  <span className="text-gray-800 dark:text-gray-200">{receivedData.drone.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Model:</span>
-                  <span className="text-gray-800">{receivedData.drone.model}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Model:</span>
+                  <span className="text-gray-800 dark:text-gray-200">{receivedData.drone.model}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Serial:</span>
-                  <span className="text-gray-800 font-mono text-xs">{receivedData.drone.serialNumber}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Serial:</span>
+                  <span className="text-gray-800 dark:text-gray-200 font-mono text-xs">{receivedData.drone.serialNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Capacity:</span>
-                  <span className="text-gray-800">{receivedData.drone.weightLimit} kg</span>
+                  <span className="text-gray-600 dark:text-gray-400">Capacity:</span>
+                  <span className="text-gray-800 dark:text-gray-200">{receivedData.drone.weightLimit} kg</span>
                 </div>
               </div>
             </div>
@@ -167,9 +167,9 @@ const ControlPanel = ({
           </>
         ) : (
           <div className="text-center py-12">
-            <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-700 mb-2">Waiting for Order Data</h3>
-            <p className="text-gray-500 mb-4">
+            <Package className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Waiting for Order Data</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
               Listening for incoming simulation data...
             </p>
             
@@ -182,7 +182,7 @@ const ControlPanel = ({
             ) : (
               <button
                 onClick={onRefreshData}
-                className="text-blue-500 hover:text-blue-600 text-sm underline"
+                className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 text-sm underline"
               >
                 Try refreshing to get simulation data
               </button>
@@ -190,8 +190,8 @@ const ControlPanel = ({
             
             {/* Connection troubleshooting */}
             {connectionStatus === 'disconnected' && (
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="text-sm text-yellow-800">
+              <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg transition-colors duration-300">
+                <div className="text-sm text-yellow-800 dark:text-yellow-300">
                   <div className="font-medium mb-1">Connection Issues?</div>
                   <div className="text-xs">
                     • Check if backend servers are running<br/>

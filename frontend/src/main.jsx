@@ -4,6 +4,7 @@ import './index.css';
 import './styles/globals.css';
 import 'leaflet/dist/leaflet.css';
 import App from './App';
+import { ThemeProvider } from './theme/ThemeContext';
 
 // Create root element
 const rootElement = document.getElementById('root');
@@ -16,6 +17,8 @@ const root = ReactDOM.createRoot(rootElement);
 
 root.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
   </React.StrictMode>
 );
