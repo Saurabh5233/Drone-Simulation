@@ -34,6 +34,9 @@ mongoose.connection.on('error', (err) => {
 
 // Routes
 app.use('/api', simulationRoutes);
+app.get('/', (req,res)=>{
+  res.send("Data-Provider-API is running......")
+});
 
 // Health check
 app.get('/health', (req, res) => {
