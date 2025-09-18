@@ -49,7 +49,7 @@ app.set('io', io);
 // Routes
 app.use('/api', droneRoutes);
 app.use('/api', broadcastRoutes);
-app.get('/api', (req,res)=>{
+app.get('/', (req,res)=>{
   res.send("Location-Reciever API is running.....")
 });
 
