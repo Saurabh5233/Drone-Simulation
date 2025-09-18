@@ -1,5 +1,5 @@
-const API_BASE_URL_PROVIDER = 'http://localhost:3003/api';
-const API_BASE_URL_RECEIVER = 'http://localhost:3001/api';
+const API_BASE_URL_PROVIDER = import.meta.env.VITE_API_BASE_URL_PROVIDER || 'http://localhost:3003/api';
+const API_BASE_URL_RECEIVER = import.meta.env.VITE_API_BASE_URL_RECEIVER || 'http://localhost:3001/api';
 
 // Simulation API (Data Provider Server)
 export const simulationAPI = {
@@ -40,6 +40,27 @@ export const simulationAPI = {
     }
   },
   
+  // Start simulation for a specific orderId
+  startSimulationForOrder: async (orderId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL_PROVIDER}/simulation/${orderId}/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(`Error starting simulation for order ${orderId}:`, error);
+      throw error;
+    }
+  },
+
   // Get active simulations
   getActiveSimulations: async () => {
     try {
@@ -149,8 +170,9 @@ export const droneAPI = {
 // Health check utilities
 export const healthAPI = {
   checkDataProvider: async () => {
+    const url = (import.meta.env.VITE_API_BASE_URL_PROVIDER || 'http://localhost:3003').replace('/api', '');
     try {
-      const response = await fetch('http://localhost:3003/health');
+      const response = await fetch(`${url}/health`);
       return await response.json();
     } catch (error) {
       return { status: 'ERROR', error: error.message };
@@ -158,8 +180,9 @@ export const healthAPI = {
   },
   
   checkLocationReceiver: async () => {
+    const url = (import.meta.env.VITE_API_BASE_URL_RECEIVER || 'http://localhost:3001').replace('/api', '');
     try {
-      const response = await fetch('http://localhost:3001/health');
+      const response = await fetch(`${url}/health`);
       return await response.json();
     } catch (error) {
       return { status: 'ERROR', error: error.message };

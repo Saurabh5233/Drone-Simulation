@@ -108,6 +108,9 @@ const DroneSimulator = () => {
     // Connect to WebSocket
     const connectWebSocket = async () => {
       try {
+        // IMPORTANT FOR DEPLOYMENT: 
+        // Ensure your /src/services/websocket.js file uses an environment variable for the URL.
+        // Example: const socket = io(import.meta.env.VITE_WEBSOCKET_URL || 'http://localhost:3001');
         await webSocketService.connect();
         setConnectionStatus('connected');
         console.log('✅ WebSocket connected');
@@ -275,18 +278,7 @@ const DroneSimulator = () => {
       // Start the simulation on the server
       console.log('🚀 Starting simulation for order:', receivedData.order._id);
 
-      const response = await fetch(`http://localhost:3003/api/simulation/${receivedData.order._id}/start`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const result = await simulationAPI.startSimulationForOrder(receivedData.order._id);
       console.log('✅ Simulation started:', result);
 
       setSimulationStatus('running');

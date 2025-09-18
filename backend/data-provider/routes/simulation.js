@@ -6,8 +6,8 @@ const Order = require('../models/Order');
 const { generateSimulationData } = require('../data/mockData');
 const webSocketBroadcastService = require('../services/websocketClient');
 
-const LOCATION_RECEIVER_URL = 'http://localhost:3001/api/drones/location';
-const EXTERNAL_SERVER_URL = 'https://drone-flux-system-server.vercel.app';
+const LOCATION_RECEIVER_URL = process.env.LOCATION_RECEIVER_URL || 'http://localhost:3001/api/drones/location';
+const EXTERNAL_SERVER_URL = process.env.EXTERNAL_SERVER_URL || 'https://drone-flux-system-server.vercel.app';
 
 // Store active simulations
 let activeSimulations = new Map();

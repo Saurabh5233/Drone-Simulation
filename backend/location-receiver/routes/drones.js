@@ -3,7 +3,7 @@ const axios = require('axios');
 const router = express.Router();
 const DroneLocation = require('../models/DroneLocation');
 
-const EXTERNAL_SERVER_URL = 'https://drone-flux-system-server.vercel.app';
+const EXTERNAL_SERVER_URL = process.env.EXTERNAL_SERVER_URL || 'https://drone-flux-system-server.vercel.app';
 
 // Store active drone connections
 const activeDrones = new Map();

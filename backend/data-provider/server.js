@@ -8,8 +8,14 @@ const simulationRoutes = require('./routes/simulation');
 const app = express();
 const PORT = process.env.PORT || 3003;
 
+// CORS configuration for production
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || ['http://localhost:5174', 'http://localhost:3000'],
+  optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Database connection
