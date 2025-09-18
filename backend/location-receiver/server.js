@@ -11,17 +11,22 @@ const { handleWebSocketConnections } = require('./websocket/socketHandler');
 
 const app = express();
 const server = http.createServer(app);
+
+// CORS configuration for production (for both Express and Socket.IO)
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || ['http://localhost:5174', 'http://localhost:3000'],
+  methods: ["GET", "POST"],
+  optionsSuccessStatus: 200
+};
+
 const io = socketIo(server, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
+  cors: corsOptions
 });
 
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Database connection

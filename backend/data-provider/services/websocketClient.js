@@ -3,7 +3,7 @@ const { io } = require('socket.io-client');
 
 class WebSocketBroadcastService {
   constructor() {
-    this.locationReceiverUrl = 'http://localhost:3001';
+    this.locationReceiverUrl = process.env.LOCATION_RECEIVER_WS_URL || 'http://localhost:3001';
     this.socket = null;
     this.isConnected = false;
     this.reconnectAttempts = 0;
