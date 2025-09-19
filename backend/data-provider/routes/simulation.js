@@ -8,6 +8,7 @@ const webSocketBroadcastService = require('../services/websocketClient');
 
 const LOCATION_RECEIVER_URL = process.env.LOCATION_RECEIVER_URL || 'http://localhost:3001/api/drones/location';
 const EXTERNAL_SERVER_URL = process.env.EXTERNAL_SERVER_URL || 'https://drone-flux-system-server.vercel.app';
+const EXTERNAL_SERVER_ORDERS_ENDPOINT = process.env.EXTERNAL_SERVER_ORDERS_ENDPOINT;
 
 // Store active simulations
 let activeSimulations = new Map();
@@ -190,15 +191,17 @@ const pollExternalServer = async () => {
   try {
     console.log('🔄 Polling external server for new orders...');
     
-    // Try different endpoints that might exist on the external server
-    const endpoints = [
-      '/api/orders/pending',
-      '/orders/pending', 
-      '/api/orders',
-      '/orders',
-      '/api/drone-orders',
-      '/pending-orders'
-    ];
+    // Prefer specific endpoint from env var, fallback to trying multiple
+    const endpoints = EXTERNAL_SERVER_ORDERS_ENDPOINT
+      ? [EXTERNAL_SERVER_ORDERS_ENDPOINT]
+      : [
+          '/api/orders/pending',
+          '/orders/pending',
+          '/api/orders',
+          '/orders',
+          '/api/drone-orders',
+          '/pending-orders'
+        ];
     
     for (const endpoint of endpoints) {
       try {
@@ -220,12 +223,19 @@ const pollExternalServer = async () => {
           return; // Success, exit polling
         }
       } catch (endpointError) {
+        if (EXTERNAL_SERVER_ORDERS_ENDPOINT) {
+          // If a specific endpoint is configured and fails, log it and stop.
+          console.error(`❌ Error polling specific endpoint ${endpoint}:`, endpointError.message);
+          return;
+        }
         // Continue to next endpoint
         continue;
       }
     }
     
-    console.log('📡 No new orders found on external server');
+    if (!EXTERNAL_SERVER_ORDERS_ENDPOINT) {
+      console.log('📡 No new orders found on external server after trying all endpoints');
+    }
     
   } catch (error) {
     console.error('❌ Error polling external server:', error.message);

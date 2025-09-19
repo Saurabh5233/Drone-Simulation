@@ -26,11 +26,17 @@ const DroneSimulator = () => {
   // Refs
   const simulationIntervalRef = useRef(null);
   const healthCheckIntervalRef = useRef(null);
+  // Ref to hold the latest simulationStatus to avoid stale state in callbacks
+  const statusRef = useRef(simulationStatus);
+
+  // Keep the statusRef updated with the latest simulationStatus
+  useEffect(() => {
+    statusRef.current = simulationStatus;
+  }, [simulationStatus]);
 
   // Initialize component
   useEffect(() => {
     initializeApp();
-    setupWebSocketHandlers();
     return () => {
       cleanup();
     };
@@ -41,10 +47,7 @@ const DroneSimulator = () => {
     try {
       // Check backend health
       await checkBackendHealth();
-
-      // Initialize WebSocket connection
-      await initializeWebSocket();
-
+      setupWebSocketHandlers();
       // Load initial data
       await loadInitialData();
 
@@ -59,68 +62,47 @@ const DroneSimulator = () => {
 
   // Initialize WebSocket connection and handlers
   const setupWebSocketHandlers = useCallback(() => {
-    // Handle simulation data
+    // Handle new simulation data from internal generation
     webSocketService.onSimulationData((data) => {
       console.log('📡 Received simulation data:', data);
-      setReceivedData(data);
+      handleNewSimulationData(data);
+    });
 
-      // Extract and set pickup and delivery coordinates
-      if (data.order) {
-        const { pickupAddress, deliveryAddress } = data.order;
-
-        // Convert addresses to coordinates
-        const fetchCoordinates = async () => {
-          try {
-            const [pickup, delivery] = await Promise.all([
-              getCoordinatesFromAddress(pickupAddress),
-              getCoordinatesFromAddress(deliveryAddress)
-            ]);
-
-            setPickupCoords(pickup);
-            setDeliveryCoords(delivery);
-
-            // Set initial drone position to pickup location
-            setCurrentPosition({
-              latitude: pickup.latitude,
-              longitude: pickup.longitude
-            });
-
-            console.log('📍 Set pickup and delivery coordinates');
-          } catch (error) {
-            console.error('Error getting coordinates:', error);
-            setError('Failed to get coordinates for addresses');
-          }
-        };
-
-        fetchCoordinates();
-      }
+    // Handle new orders polled from the external server
+    webSocketService.on('order_notification', (data) => {
+      console.log('📦 Received new external order:', data);
+      handleNewSimulationData(data);
+      showNotification(`New delivery order received: ${data.order._id}`);
     });
 
     // Handle location updates
     webSocketService.onLocationUpdate((location) => {
+      // This is the real-time drone position from the backend
       setCurrentPosition({
         latitude: location.latitude,
         longitude: location.longitude
       });
       setBatteryLevel(location.batteryCapacity);
     });
+    
+    webSocketService.on('websocket_connected', () => {
+      setConnectionStatus('connected');
+      console.log('✅ WebSocket connected');
+    });
 
-    // Connect to WebSocket
-    const connectWebSocket = async () => {
+    webSocketService.on('websocket_disconnected', () => {
+      setConnectionStatus('disconnected');
+      console.log('❌ WebSocket disconnected');
+    });
+
+    const connect = async () => {
       try {
-        // IMPORTANT FOR DEPLOYMENT: 
-        // Ensure your /src/services/websocket.js file uses an environment variable for the URL.
-        // Example: const socket = io(import.meta.env.VITE_WEBSOCKET_URL || 'http://localhost:3001');
         await webSocketService.connect();
-        setConnectionStatus('connected');
-        console.log('✅ WebSocket connected');
       } catch (error) {
         console.error('❌ WebSocket connection error:', error);
-        setConnectionStatus('disconnected');
       }
     };
-
-    connectWebSocket();
+    connect();
 
     return () => {
       webSocketService.disconnect();
@@ -156,30 +138,6 @@ const DroneSimulator = () => {
     }
   };
 
-  // Initialize WebSocket connection
-  const initializeWebSocket = async () => {
-    try {
-      await webSocketService.connect();
-
-      // Set up WebSocket event listeners
-      webSocketService.on('drone_location_update', (data) => {
-        console.log('📍 Received WebSocket location update:', data);
-        showNotification(`Location update for drone ${data.serialNumber}`);
-      });
-
-      webSocketService.on('websocket_connected', () => {
-        console.log('✅ WebSocket connected successfully');
-      });
-
-      webSocketService.on('websocket_disconnected', () => {
-        console.log('❌ WebSocket disconnected');
-      });
-
-    } catch (error) {
-      console.warn('WebSocket connection failed, continuing without real-time updates:', error);
-    }
-  };
-
   // Load initial simulation data
   const loadInitialData = async () => {
     try {
@@ -206,22 +164,29 @@ const DroneSimulator = () => {
   };
 
   // Handle new simulation data
-  const handleNewSimulationData = (data) => {
+  const handleNewSimulationData = async (data) => {
     setReceivedData(data);
     setLastDataReceived(new Date());
 
-    // Calculate coordinates
-    const pickup = getCoordinatesFromAddress(data.order.pickupAddress);
-    const delivery = getCoordinatesFromAddress(data.order.deliveryAddress);
+    // Calculate coordinates asynchronously
+    try {
+      const [pickup, delivery] = await Promise.all([
+        getCoordinatesFromAddress(data.order.pickupAddress),
+        getCoordinatesFromAddress(data.order.deliveryAddress)
+      ]);
 
-    setPickupCoords(pickup);
-    setDeliveryCoords(delivery);
+      setPickupCoords(pickup);
+      setDeliveryCoords(delivery);
 
-    // Reset simulation state
-    if (simulationStatus === 'stopped') {
-      setCurrentPosition(pickup);
-      setBatteryLevel(data.drone.batteryCapacity);
-      setSimulationProgress(0);
+      // Reset simulation state
+      if (statusRef.current === 'stopped') {
+        setCurrentPosition(pickup);
+        setBatteryLevel(data.drone.batteryCapacity);
+        setSimulationProgress(0);
+      }
+    } catch (error) {
+      console.error('Error getting coordinates for new data:', error);
+      setError('Failed to get coordinates for new order addresses');
     }
 
     // Subscribe to drone updates via WebSocket

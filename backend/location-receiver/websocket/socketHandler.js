@@ -102,14 +102,12 @@ function handleWebSocketConnections(io) {
   // Add helper methods to io instance
   io.emitSimulationData = (simulationData) => {
     console.log('📊 Broadcasting simulation data to all clients');
-    io.to('simulation_updates').emit('simulationData', simulationData);
-    io.to('all_drones').emit('simulationData', simulationData);
+    io.emit('simulationData', simulationData);
   };
   
   io.emitOrderNotification = (orderData) => {
     console.log('📦 Broadcasting order notification to all clients');
-    io.to('order_notifications').emit('newOrder', orderData);
-    io.to('all_drones').emit('newOrder', orderData);
+    io.emit('order_notification', orderData);
   };
   
   io.emitDroneLocationUpdate = (locationData) => {

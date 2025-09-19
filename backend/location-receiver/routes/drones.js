@@ -4,6 +4,7 @@ const router = express.Router();
 const DroneLocation = require('../models/DroneLocation');
 
 const EXTERNAL_SERVER_URL = process.env.EXTERNAL_SERVER_URL || 'https://drone-flux-system-server.vercel.app';
+const EXTERNAL_SERVER_LOCATION_ENDPOINT = process.env.EXTERNAL_SERVER_LOCATION_ENDPOINT;
 
 // Store active drone connections
 const activeDrones = new Map();
@@ -11,14 +12,17 @@ const activeDrones = new Map();
 // Function to send location data to external server
 const sendLocationToExternalServer = async (locationData) => {
   try {
-    const endpoints = [
-      '/api/drone-location',
-      '/drone-location',
-      '/api/location-update',
-      '/location-update',
-      '/api/tracking/update',
-      '/tracking/update'
-    ];
+    // Prefer specific endpoint from env var, fallback to trying multiple
+    const endpoints = EXTERNAL_SERVER_LOCATION_ENDPOINT
+      ? [EXTERNAL_SERVER_LOCATION_ENDPOINT]
+      : [
+          '/api/drone-location',
+          '/drone-location',
+          '/api/location-update',
+          '/location-update',
+          '/api/tracking/update',
+          '/tracking/update'
+        ];
     
     for (const endpoint of endpoints) {
       try {
@@ -37,13 +41,20 @@ const sendLocationToExternalServer = async (locationData) => {
         console.log(`📤 Sent location to external server: ${endpoint}`);
         return true;
       } catch (endpointError) {
+        if (EXTERNAL_SERVER_LOCATION_ENDPOINT) {
+          // If a specific endpoint is configured and fails, log it and stop.
+          console.warn(`⚠️ Failed to send location to specific external endpoint ${endpoint}:`, endpointError.message);
+          return false;
+        }
         // Continue to next endpoint if this one fails
         continue;
       }
     }
     
     // If we get here, no endpoint worked
-    console.warn('⚠️ Failed to send location to external server - no working endpoints');
+    if (!EXTERNAL_SERVER_LOCATION_ENDPOINT) {
+      console.warn('⚠️ Failed to send location to external server - no working endpoints after trying all');
+    }
     return false;
     
   } catch (error) {

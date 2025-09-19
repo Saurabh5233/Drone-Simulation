@@ -2,90 +2,50 @@ const express = require('express');
 const router = express.Router();
 
 // POST endpoint to broadcast simulation data
-router.post('/broadcast/simulation', (req, res) => {
-  try {
-    const { type, data, timestamp } = req.body;
-    
-    if (!data) {
-      return res.status(400).json({ error: 'Missing simulation data' });
-    }
-    
-    console.log('📊 Received broadcast request for simulation data');
-    
-    // Get io instance from app
-    const io = req.app.get('io');
-    if (io && io.emitSimulationData) {
-      io.emitSimulationData({
-        ...data,
-        broadcastTimestamp: timestamp || new Date().toISOString(),
-        source: 'data_provider'
-      });
-      
-      console.log('✅ Simulation data broadcasted to all clients');
-      res.json({ 
-        success: true, 
-        message: 'Simulation data broadcasted successfully',
-        clientsNotified: io.engine.clientsCount || 0
-      });
-    } else {
-      console.warn('⚠️ WebSocket not available for broadcasting');
-      res.status(503).json({ 
-        error: 'WebSocket service not available',
-        message: 'Cannot broadcast simulation data'
-      });
-    }
-    
-  } catch (error) {
-    console.error('❌ Error broadcasting simulation data:', error);
-    res.status(500).json({ 
-      error: 'Failed to broadcast simulation data',
-      details: error.message 
-    });
-  }
-});
+const createBroadcastHandler = (emitMethodName, eventType, logIcon) => {
+  return (req, res) => {
+    try {
+      const { data, timestamp } = req.body;
 
-// POST endpoint to broadcast order notifications
-router.post('/broadcast/order', (req, res) => {
-  try {
-    const { type, data, timestamp } = req.body;
-    
-    if (!data) {
-      return res.status(400).json({ error: 'Missing order data' });
+      if (!data) {
+        return res.status(400).json({ error: `Missing ${eventType} data` });
+      }
+
+      console.log(`${logIcon} Received broadcast request for ${eventType} data`);
+
+      const io = req.app.get('io');
+      if (io && io[emitMethodName]) {
+        io[emitMethodName]({
+          ...data,
+          broadcastTimestamp: timestamp || new Date().toISOString(),
+          source: 'data_provider'
+        });
+
+        console.log(`✅ ${eventType} data broadcasted to all clients`);
+        res.json({
+          success: true,
+          message: `${eventType} data broadcasted successfully`,
+          clientsNotified: io.engine.clientsCount || 0
+        });
+      } else {
+        console.warn(`⚠️ WebSocket not available for broadcasting ${eventType}`);
+        res.status(503).json({
+          error: 'WebSocket service not available',
+          message: `Cannot broadcast ${eventType} data`
+        });
+      }
+    } catch (error) {
+      console.error(`❌ Error broadcasting ${eventType} data:`, error);
+      res.status(500).json({
+        error: `Failed to broadcast ${eventType} data`,
+        details: error.message
+      });
     }
-    
-    console.log('📦 Received broadcast request for order notification');
-    
-    // Get io instance from app
-    const io = req.app.get('io');
-    if (io && io.emitOrderNotification) {
-      io.emitOrderNotification({
-        ...data,
-        broadcastTimestamp: timestamp || new Date().toISOString(),
-        source: 'data_provider'
-      });
-      
-      console.log('✅ Order notification broadcasted to all clients');
-      res.json({ 
-        success: true, 
-        message: 'Order notification broadcasted successfully',
-        clientsNotified: io.engine.clientsCount || 0
-      });
-    } else {
-      console.warn('⚠️ WebSocket not available for broadcasting');
-      res.status(503).json({ 
-        error: 'WebSocket service not available',
-        message: 'Cannot broadcast order notification'
-      });
-    }
-    
-  } catch (error) {
-    console.error('❌ Error broadcasting order notification:', error);
-    res.status(500).json({ 
-      error: 'Failed to broadcast order notification',
-      details: error.message 
-    });
-  }
-});
+  };
+};
+
+router.post('/broadcast/simulation', createBroadcastHandler('emitSimulationData', 'simulation', '📊'));
+router.post('/broadcast/order', createBroadcastHandler('emitOrderNotification', 'order', '📦'));
 
 // POST endpoint to broadcast custom messages
 router.post('/broadcast/custom', (req, res) => {
